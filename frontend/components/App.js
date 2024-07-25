@@ -41,28 +41,30 @@ export default function App() {
     // to the Articles screen. Don't forget to turn off the spinner!
     setMessage('')
     setSpinnerOn(true)
-
-    try{
-      const response = await fetch(loginUrl, {
-        method: 'POST',
+    fetch(loginUrl, {
+      method: 'POST',
         headers: {
           'content-Type': 'application/json'
-        },
+    },
         body: JSON.stringify({username, password}),
       })
-      const data = await response.json()
-      if(response.ok){
-        localStorage.setItem('token', data.token)
+      .then(response => response.json())
+      .then(data => {
+        if(data.token){
+           localStorage.setItem('token', data.token)
         setMessage(data.message)
-        redirectToArticles()
+        redirectToArticles()       
       }else{
         setMessage(data.message)
       }
-    } catch (error){
+    }) 
+    .catch (error =>{
       setMessage('Error logging in')
-    }
-    setSpinnerOn(false)
-  }
+    })
+    
+    .finally(() => { setSpinnerOn(false)
+  })
+}
 
   const getArticles = async () => {
     // ✨ implement
