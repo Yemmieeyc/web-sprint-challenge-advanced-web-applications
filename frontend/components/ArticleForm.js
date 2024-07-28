@@ -21,6 +21,7 @@ export default function ArticleForm({postArticle, updateArticle, setCurrentArtic
     } else {
       setValues(initialFormValues)
     }
+    console.log("Current Article:", currentArticle)
 
   }, [currentArticle])
 
@@ -35,25 +36,28 @@ export default function ArticleForm({postArticle, updateArticle, setCurrentArtic
     // We must submit a new post or update an existing one,
     // depending on the truthyness of the `currentArticle` prop.
     if(currentArticle){
-      updateArticle({article_id: currentArticle.article_id, article: values})
+      //updateArticle({article_id: currentArticle.article_id, article: values})
+      updateArticle({...currentArticle, ...values})
     } else {
       postArticle(values)
     }
 
     setValues(initialFormValues)
-    setCurrentArticleId(null)
+    //setCurrentArticleId(null)
   }
 
   const isDisabled = () => {
     // ✨ implement
     // Make sure the inputs have some values
-    return !(values.title && values.text && values.topic)
+    const {title, text, topic} = values
+    return !(title.trim() && text.trim() && topic)
+    //return !(values.title && values.text && values.topic)
   }
 
-  const onCancel = () => {
-    setValues(initialFormValues)
-    setCurrentArticleId(null)
-  }
+  // const onCancel = () => {
+  //   setValues(initialFormValues)
+  //   setCurrentArticleId(null)
+  // }
 
   return (
     // ✨ fix the JSX: make the heading display either "Edit" or "Create"
@@ -82,7 +86,7 @@ export default function ArticleForm({postArticle, updateArticle, setCurrentArtic
       </select>
       <div className="button-group">
         <button disabled={isDisabled()} id="submitArticle">Submit</button>
-        <button type='button' onClick={onCancel}>Cancel edit</button>
+        <button type='button' onClick={() => setCurrentArticleId(null)}>Cancel edit</button>
       </div>
     </form>
   )

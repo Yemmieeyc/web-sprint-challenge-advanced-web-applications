@@ -12,9 +12,9 @@ import Articles from './Articles';
 import ArticleForm from './ArticleForm';
 
 
-test('sanity', () => {
-  expect(true).toBe(false)
-})
+// test('sanity', () => {
+//   expect(true).toBe(false)
+// })
 
 test('LoginForm calls login function on form submission', () => {
   const login = jest.fn();

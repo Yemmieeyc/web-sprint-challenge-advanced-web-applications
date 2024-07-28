@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { NavLink, Routes, Route, useNavigate } from 'react-router-dom'
 import Articles from './Articles'
 import LoginForm from './LoginForm'
@@ -41,31 +41,32 @@ export default function App() {
     // to the Articles screen. Don't forget to turn off the spinner!
     setMessage('')
     setSpinnerOn(true)
-    fetch(loginUrl, {
-      method: 'POST',
-        headers: {
-          'content-Type': 'application/json'
-    },
-        body: JSON.stringify({username, password}),
-      })
-      .then(response => response.json())
-      .then(data => {
-        if(data.token){
-           localStorage.setItem('token', data.token)
-        setMessage(data.message)
-        redirectToArticles()       
-      }else{
-        setMessage(data.message)
-      }
-    }) 
-    .catch (error =>{
-      setMessage('Error logging in')
-    })
-    
-    .finally(() => { setSpinnerOn(false)
-  })
-}
 
+    try {
+      const response = await fetch(loginUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        setMessage(data.message || 'Login successful!');
+        redirectToArticles();
+      } else {
+        setMessage(data.message || 'Login failed. Please try again.');
+      }
+      setSpinnerOn(false);
+    } catch (error) {
+      console.log('Login error:', error)
+      setMessage('Login failed. Please try again.');
+      setSpinnerOn(false);
+    } 
+      
+  };
+   
   const getArticles = async () => {
     // ✨ implement
     // We should flush the message state, turn on the spinner
@@ -96,18 +97,17 @@ export default function App() {
         setArticles(data.articles)
         setMessage(data.message)
       } else{
-        if(response.sataus === 401){
+        if(response.status === 401){
           redirectToLogin()
         }else{
           setMessage(data.message)
         }
       }
-
+      setSpinnerOn(false)
     }catch (error){
       setMessage('Error fetching')
-
+     setSpinnerOn(false)
     }
-    setSpinnerOn(false)
   }
 
   const postArticle = async (article) => {
@@ -135,7 +135,7 @@ export default function App() {
       const data = await response.json()
 
       if(response.ok){
-        setArticles(prevArticles => [prevArticles, data.article]);
+        setArticles(prevArticles => [...prevArticles, data.article]);
         setMessage(data.message)
       } else{
         if(response.status === 401){
@@ -211,8 +211,8 @@ export default function App() {
         headers: {
           'Authorization': token,
         },
-        body: JSON.stringify(article),
-      })
+        //body: JSON.stringify(article),
+      });
       const data = await response.json()
       
       if (response.ok){
@@ -233,6 +233,10 @@ export default function App() {
     setSpinnerOn(false)
   }
 
+  useEffect(() => {
+    console.log("Current Article ID:", currentArticleId)
+  }, [currentArticleId])
+
   return (
     // ✨ fix the JSX: `Spinner`, `Message`, `LoginForm`, `ArticleForm` and `Articles` expect props ❗
     <>
@@ -246,11 +250,11 @@ export default function App() {
           <NavLink id="articlesScreen" to="/articles">Articles</NavLink>
         </nav>
         <Routes>
-          <Route path="/" element={<LoginForm />} />
+          <Route path="/" element={<LoginForm login={login}/>} />
           <Route path="articles" element={
             <>
-              <ArticleForm postArticle={postArticle} updateArticle={updateArticle} currentArticle={currentArticleId} />
-              <Articles articles={articles} getArticles={articles} deleteArticle={deleteArticle} setCurrentArticleId={setCurrentArticleId} />
+              <ArticleForm postArticle={postArticle} updateArticle={updateArticle} currentArticle={articles.find(art => art.articles_id === currentArticleId)} setCurrentArticleId={setCurrentArticleId} />
+              <Articles articles={articles} getArticles={getArticles} deleteArticle={deleteArticle} setCurrentArticleId={setCurrentArticleId} />
             </>
           } />
         </Routes>

@@ -14,7 +14,12 @@ export default function Articles({articles, getArticles, deleteArticle, setCurre
   useEffect(() => {
     // ✨ grab the articles here, on first render only
     getArticles()
-  }, [getArticles()])
+  }, [])
+
+  const handleEdit = (article_id) => {
+    console.log('Edit Article ID:', article_id)
+    setCurrentArticleId(article_id)
+  }
 
   return (
     // ✨ fix the JSX: replace `Function.prototype` with actual functions
@@ -31,7 +36,7 @@ export default function Articles({articles, getArticles, deleteArticle, setCurre
                   <p>Topic: {art.topic}</p>
                 </div>
                 <div>
-                  <button onClick={() => setCurrentArticleId(art.article_id)}>Edit</button>
+                  <button onClick={() => handleEdit(art.article_id)}>Edit</button>
                   <button onClick={() => deleteArticle(art.article_id)}>Delete</button>
                 </div>
               </div>
