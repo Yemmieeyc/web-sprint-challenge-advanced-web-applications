@@ -21,7 +21,7 @@ export default function ArticleForm({postArticle, updateArticle, setCurrentArtic
     } else {
       setValues(initialFormValues)
     }
-    console.log("Current Article:", currentArticle)
+    //console.log("Current Article:", currentArticle)
 
   }, [currentArticle])
 
@@ -35,23 +35,38 @@ export default function ArticleForm({postArticle, updateArticle, setCurrentArtic
     // ✨ implement
     // We must submit a new post or update an existing one,
     // depending on the truthyness of the `currentArticle` prop.
-    if(currentArticle){
-      //updateArticle({article_id: currentArticle.article_id, article: values})
-      updateArticle({...currentArticle, ...values})
-    } else {
-      postArticle(values)
-    }
+    // if(currentArticle){
+    //   updateArticle({article_id: currentArticle.article_id, article: values})
+    //   //updateArticle({...currentArticle, ...values})
+    // } else {
+    //   postArticle(values)
+    // }
 
-    setValues(initialFormValues)
+    // setValues(initialFormValues)
     //setCurrentArticleId(null)
+
+    const article = { 
+      
+      text: values.text, 
+
+      topic: values.topic,
+
+      title: values.title
+
+     }
+
+     currentArticle ? updateArticle({article, article_id: currentArticle.article_id}) : postArticle(article)
+     setCurrentArticleId()
+     setValues(initialFormValues)
   }
 
   const isDisabled = () => {
     // ✨ implement
     // Make sure the inputs have some values
-    const {title, text, topic} = values
-    return !(title.trim() && text.trim() && topic)
+    //const {title, text, topic} = values
+    //return !(title.trim() && text.trim() && topic)
     //return !(values.title && values.text && values.topic)
+    return Object.values(values).some(value => !value.trim().length)
   }
 
   // const onCancel = () => {
@@ -63,7 +78,9 @@ export default function ArticleForm({postArticle, updateArticle, setCurrentArtic
     // ✨ fix the JSX: make the heading display either "Edit" or "Create"
     // and replace Function.prototype with the correct function
     <form id="form" onSubmit={onSubmit}>
-      <h2>{currentArticle ? 'Edit Article' : 'Create Article'}</h2>
+      <h2>{currentArticle 
+      ? 'Edit Article' : 'Create Article'
+      }</h2>
       <input
         maxLength={50}
         onChange={onChange}
@@ -86,7 +103,7 @@ export default function ArticleForm({postArticle, updateArticle, setCurrentArtic
       </select>
       <div className="button-group">
         <button disabled={isDisabled()} id="submitArticle">Submit</button>
-        <button type='button' onClick={() => setCurrentArticleId(null)}>Cancel edit</button>
+       { currentArticle && <button type='button' onClick={() => setCurrentArticleId()}>Cancel edit</button>}
       </div>
     </form>
   )
